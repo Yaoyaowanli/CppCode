@@ -1,0 +1,5 @@
+# ninja log v5
+2	219	1669308956649201177	CMakeFiles/CppCode.dir/my_map_and_set/my_map.cpp.o	b8b572b84724cd36
+224	258	1669308956689068439	CppCode	faeb8adf94da079c
+2	224	1669308956654305400	CMakeFiles/CppCode.dir/my_map_and_set/my_set.cpp.o	363231ea6c280315
+3	215	1669308956644409614	CMakeFiles/CppCode.dir/main.cpp.o	ef3b8bfe4ee5a92f

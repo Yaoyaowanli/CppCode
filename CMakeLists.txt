@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.23)
+project(CppCode)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(my_map_and_set)
+
+add_executable(CppCode
+        my_map_and_set/my_map.cpp
+        my_map_and_set/my_map.h
+        my_map_and_set/my_set.cpp
+        my_map_and_set/my_set.h
+        my_map_and_set/rb_tree.h
+        main.cpp)

@@ -1,0 +1,3 @@
+/Users/yaoyuan/Code/C:Cpp_Code/CppCode/CppCode/cmake-build-debug/CMakeFiles/CppCode.dir
+/Users/yaoyuan/Code/C:Cpp_Code/CppCode/CppCode/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/yaoyuan/Code/C:Cpp_Code/CppCode/CppCode/cmake-build-debug/CMakeFiles/rebuild_cache.dir
