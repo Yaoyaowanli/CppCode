@@ -62,10 +62,10 @@ public:
     typedef __TreeIterator<T,const T&,const T*> const_iterator;
     iterator begin();
     iterator end();
-    bool Insert(const T& data);
+    std::pair<iterator,bool> Insert(const T& data);
     void InOrder()const;
     bool IsValidRBTree();
-    Node* Find(const K& key);
+    iterator Find(const K& key);
 private:
     bool _IsValidRBTree(RBTreeNode<T>* root,size_t k,size_t BlackNode_count);
     void rotateL(Node* parent);
@@ -104,13 +104,13 @@ __TreeIterator<T,T&,T*> RBTree<K,T,KOfT>::end() {
 }
 
 template<class K,class T,class KOfT>
-bool RBTree<K, T,KOfT>::Insert(const T& data) {
+std::pair<__TreeIterator<T,T&,T*>,bool> RBTree<K, T,KOfT>::Insert(const T& data) {
     //1、按照二叉搜索树的规则插入
     //1.1、如果当前红黑树为空树，构造节点为root
     if (_root == nullptr){
         _root = new Node(data);
         _root->_col = BLACK;
-        return true;
+        return std::make_pair(__TreeIterator<T,T&,T*>(_root),true);
     }
     //1.1、如果不为空，则通过比较pair.first的键来确定最终插入的位置
     KOfT kOft;
@@ -124,11 +124,12 @@ bool RBTree<K, T,KOfT>::Insert(const T& data) {
             parent = cur;
             cur = cur->_right;
         } else {
-            return false;
+            return std::make_pair(__TreeIterator<T,T&,T*>(cur),false);
         }
     }
     //1.2、cur已经找到了空位置,判断cur应该插入在parent的左边还是右边.
     cur = new Node(data);
+    Node* newNode = cur;
     if (kOft(parent->_data) > kOft(data)){
         parent->_left = cur;
         cur ->_parent = parent;
@@ -140,7 +141,7 @@ bool RBTree<K, T,KOfT>::Insert(const T& data) {
     cur->_col = RED;
     //如果新插入节点cur的parent是红色，那么他的grandfather一定是黑色，这个时候我们通过变色来保持红黑树
     if (parent == _root){
-        return true;
+        return std::make_pair(__TreeIterator<T,T&,T*>(cur),true);
     }
     while (parent && parent->_col == RED){
         //红黑树的调节关键看uncle
@@ -202,7 +203,7 @@ bool RBTree<K, T,KOfT>::Insert(const T& data) {
     }
 
     _root->_col = BLACK;
-    return true;
+    return std::make_pair(__TreeIterator<T,T&,T*>(newNode), true);
 }
 
 template<class K,class T,class KOfT>
@@ -337,7 +338,7 @@ bool RBTree<K,T,KOfT>::_IsValidRBTree(RBTreeNode<T>* root,size_t k,size_t BlackN
 }
 
 template<class K,class T,class KOfT>
-RBTreeNode<T>* RBTree<K,T,KOfT>::Find(const K& key) {
+__TreeIterator<T,T&,T*> RBTree<K,T,KOfT>::Find(const K& key) {
     KOfT kOft;
     Node* cur = _root;
     while (cur){
@@ -346,10 +347,10 @@ RBTreeNode<T>* RBTree<K,T,KOfT>::Find(const K& key) {
         }else if (kOft(cur->_data) < key){
             cur = cur->_right;
         }else{
-            return cur;
+            return __TreeIterator<T,T&,T*>(cur);
         }
     }
-    return nullptr;
+    return __TreeIterator<T,T&,T*>(nullptr);
 }
 
 //RBTree iterator

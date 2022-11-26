@@ -10,8 +10,9 @@ using namespace std;
 
 int main (){
     //std::cout << "hello world ~ " << std::endl;
-    test_my_map();
-    test_my_set();
+    //test_my_map();
+    //test_my_set();
+    test_my_map2();
 
     return 0;
 }

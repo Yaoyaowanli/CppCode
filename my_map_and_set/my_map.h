@@ -22,7 +22,7 @@ namespace yao{
             }
         };
         //iterator 重命名
-        typedef typename RBTree<K,V,MapKeyOrT>::iterator iterator;
+        typedef typename RBTree<K,std::pair<K,V>,MapKeyOrT>::iterator iterator;
         iterator begin(){
             //返回RBTree
             return _t.begin();
@@ -30,17 +30,20 @@ namespace yao{
         iterator end(){
             return _t.end();
         }
-        bool Insert(const std::pair<K,V>& kv);
+        std::pair<iterator ,bool> Insert(const std::pair<K,V>& kv){
+            return _t.Insert(kv);
+        }
+        V& operator[](const K& key){
+            std::pair<iterator,bool> ret = _t.Insert(std::make_pair(key,V()));
+            return ret.first->second;
+        }
     private:
         RBTree<K,std::pair<K,V>,MapKeyOrT> _t;
     };
 }
 
-template<class K,class V>
-bool yao::map<K,V>::Insert(const std::pair<K, V> &kv) {
-    return _t.Insert(kv);
-}
 
 
 
 void test_my_map();
+void test_my_map2();

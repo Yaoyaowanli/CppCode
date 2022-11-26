@@ -30,18 +30,14 @@ namespace yao{
             return _t.end();
         }
 
-        bool Insert(const K& k);
+        std::pair<iterator,bool> Insert(const K& k){
+            return _t.Insert(k);
+        }
 
     private:
         RBTree<K,K,SetOfT> _t;
     };
 
-
-
-    template<class K>
-    bool set<K>::Insert(const K &k) {
-        return _t.Insert(k);
-    }
 }
 
 void test_my_set();
