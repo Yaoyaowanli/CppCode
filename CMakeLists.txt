@@ -11,4 +11,11 @@ add_executable(CppCode
         my_map_and_set/my_set.cpp
         my_map_and_set/my_set.h
         my_map_and_set/rb_tree.h
-        main.cpp unordered_map_and_set/unordered_map_and_set.cpp unordered_map_and_set/unordered_map_and_set.h Hash/HashTable.cpp Hash/HashTable.h)
+        main.cpp
+        unordered_map_and_set/unordered_map_and_set.cpp
+        unordered_map_and_set/unordered_map_and_set.h
+        Hash/HashTable.h
+        Hash/my_unordered_map.cpp
+        Hash/my_unordered_map.h
+        Hash/my_unordered_set.cpp
+        Hash/my_unordered_set.h)
