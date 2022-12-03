@@ -212,6 +212,7 @@ namespace yao_open_hash {
         iterator Begin();
         iterator End();
     private:
+        size_t GetNextPrime(size_t num);
         std::vector<Node*> _tables;
         size_t _num = 0;                    //表中存储的数据个数
     };
@@ -254,6 +255,28 @@ namespace yao_open_hash {
         }
     }
 
+    //GetNextPrime: 维护了一个素数数组，里边的每一个素数都是前一个素数的大约2倍
+    template<class K,class T,class KOfT,class Hash>
+    size_t HashTable<K,T,KOfT,Hash>::GetNextPrime(size_t num) {
+        const int _PrimeSize = 28;
+        static const unsigned long _PrimeList[_PrimeSize] =
+        {
+        53ul, 97ul, 193ul, 389ul, 769ul,
+        1543ul, 3079ul, 6151ul, 12289ul, 24593ul,
+        49157ul, 98317ul, 196613ul, 393241ul, 786433ul,
+        1572869ul, 3145739ul, 6291469ul, 12582917ul, 25165843ul,
+        50331653ul, 100663319ul, 201326611ul, 402653189ul, 805306457ul,
+        1610612741ul, 3221225473ul, 4294967291ul
+        };
+
+        for (size_t i=0;i<_PrimeSize;i++){
+            if (_PrimeList[i] > num){
+                return _PrimeList[i];
+            }
+        }
+        return _PrimeList[_PrimeSize-1];
+    }
+
     template<class K,class T,class KOfT,class Hash>
     std::pair<__HashTable_Iterator<K,T,KOfT,Hash>,bool> HashTable<K,T,KOfT,Hash>::Insert(const T &data) {
         //开散列当插入数据遇到哈希冲突时，会将冲突数据链接到当前数据后，哈希表中的每一个元素都是一个链表，不过当大量冲突发生时
@@ -263,7 +286,9 @@ namespace yao_open_hash {
         //检查、扩容
         if (_tables.size() == _num){
             std::vector<Node*> new_tables;
-            size_t new_size = _tables.size()==0 ? 10 : _tables.size()*2;
+            //如果哈希表的大小是一个素数，可以降低哈希冲突率
+            //size_t new_size = _tables.size()==0 ? 10 : _tables.size()*2;
+            size_t new_size = GetNextPrime(_tables.size());
             new_tables.resize(new_size);
             for (size_t i=0; i<_tables.size(); i++){
                 //取到每一个桶
