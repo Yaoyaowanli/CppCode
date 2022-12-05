@@ -7,6 +7,7 @@
 #include "unordered_map_and_set/unordered_map_and_set.h"
 #include "Hash/my_unordered_map.h"
 #include "Hash/bit_set.h"
+#include "cpp_11/test_cpp_11.h"
 
 using namespace std;
 
@@ -20,8 +21,14 @@ int main (){
     //test_set_compare_with_unordered_set();
     //test_my_unordered_map_1();
     //test_my_unordered_map_2();
-    test_bitset_1();
-    test_bitset_2();
+    //test_bitset_1();
+    //test_bitset_2();
+    //test_cpp11_1();
+    //test_cpp11_2();
+    //test_cpp11_5();
+    //test_cpp11_6();
+    //test_cpp11_7();
+    test_cpp11_8();
 
     return 0;
 }

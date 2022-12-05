@@ -18,4 +18,4 @@ add_executable(CppCode
         Hash/my_unordered_map.cpp
         Hash/my_unordered_map.h
         Hash/my_unordered_set.cpp
-        Hash/my_unordered_set.h Hash/bit_set.cpp Hash/bit_set.h Hash/BloomFilter.cpp Hash/BloomFilter.h subject/subject.cpp subject/subject.h)
+        Hash/my_unordered_set.h Hash/bit_set.cpp Hash/bit_set.h Hash/BloomFilter.cpp Hash/BloomFilter.h subject/subject.cpp subject/subject.h cpp_11/test_cpp_11.cpp cpp_11/test_cpp_11.h)
