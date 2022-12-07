@@ -28,7 +28,10 @@ int main (){
     //test_cpp11_5();
     //test_cpp11_6();
     //test_cpp11_7();
-    test_cpp11_8();
-
+    //test_cpp11_8();
+    //test_lambda_1();
+    //test_lambda_2();
+    //test_lambda_4();
+    test_thread_1();
     return 0;
 }

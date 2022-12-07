@@ -7,6 +7,8 @@
 #include <list>
 #include <map>
 #include <string>
+#include <thread>
+#include <mutex>
 
 void test_cpp11_1(){
     //c++11:列表初始化
@@ -290,5 +292,155 @@ void test_cpp11_8(){
     //直接捕捉a，b
     auto add2 = [a,b]()->int {return a+b;};
     cout << add2() << endl;
-
 }
+
+void test_lambda_1(){
+    int a = 10;
+    int b = 20;
+    auto la = [](int x,int y)->int {return x+y;};
+    cout << la(a,b) << endl;
+    //[捕捉列表](参数)->返回值{函数体}；
+    //捕捉列表就是捕捉和我同一个作用域的对象
+    //[a]捕捉a [a,b]捕捉a和b [=]捕捉全部
+    //[&a]引用捕捉a [&a,&b]引用捕捉a，b [&=]引用捕捉全部
+
+    //引用捕捉场景：实现a，b交换
+    auto sw1 = [](int& a,int& b){auto c = a;a=b;b=c;};
+    sw1(a,b);
+    cout << a << " " << b <<endl; //20 10
+
+    //auto sw2 = [a,b](){auto c=a;a=b,b=c};
+    //捕捉的变量在lambda函数中不能改变，如果要改变需要加mutable
+    auto sw2 = [a,b]()mutable {auto c= a;a=b;b=c;};
+    sw2();
+    cout << a << " " << b << endl; //20 10
+    //我们发现，结果并没有改变，是因为lambda表达式中的a，b是外面的a，b的副本
+    //正确的做法是传递引用
+    auto sw3 = [&a,&b]()->void {auto c=a;a=b;b=c;};
+    sw3();
+    cout << a << " " << b << endl; //10 20
+    //10 20 现在正确了
+}
+
+
+int add(int x,int y){
+    return x+y;
+}
+void test_lambda_2() {
+    int a = 10,b = 20;
+    auto add = [](int x,int y)->int {return x+y;};
+    //有一个函数叫做add，我们又定义了一个lambda表达式变量叫add，那么我们调用add，调用的是哪个呢？
+    int c = add(a,b);
+    cout << c << endl;
+    // 结论：调用的是lambda，可能是优先调用相同作用域的。
+}
+
+//lambda 表达式的应用场景
+class goods {
+public:
+    goods(const string name= "",const int price=0,const int sales=0 )
+    :_name(name),_price(price),_sales(sales){}
+    string _name;
+    int _price;
+    int _sales;
+};
+//彷函数
+struct comparePriceGreater{
+    bool operator()(const goods& g1,const goods& g2){
+        return g1._price >= g2._price;
+    }
+};
+struct comparePriceSmaller{
+    bool operator()(const goods& g1,const goods& g2){
+        return g1._price <= g2._price;
+    }
+};
+struct compareSalesGreater{
+    bool operator()(const goods& g1,const goods& g2){
+        return g1._sales >= g2._sales;
+    }
+};
+struct compareSalesSmaller{
+    bool operator()(const goods& g1,const goods& g2){
+        return g1._sales <= g2._sales;
+    }
+};
+//........
+void test_lambda_3(){
+    goods gd[] = {{"苹果",1,20},{"香蕉",5,4},{"西瓜",20,9}};
+    //我们在对类对象的不同字段进行排序时，如果没有lambda表达式，我们需要写一堆的operator>/<来确定比较规则，或者写一堆防函数
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),comparePriceSmaller());
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),comparePriceGreater());
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compareSalesGreater());
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compareSalesSmaller());
+    //使用lambda表达式解决
+    auto compare_price_greater = [](goods& a,goods& b)->bool {
+        return a._price >= b._price;
+    };
+    auto compare_price_smaller = [](goods& a,goods& b)->bool {
+        return a._price <= b._price;
+    };
+    auto compare_sales_greater = [](goods& a,goods& b)->bool {
+        return a._sales >= b._sales;
+    };
+    auto compare_sales_smaller = [](goods& a,goods& b)->bool {
+        return a._sales <= b._sales;
+    };
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compare_price_greater);
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compare_price_smaller);
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compare_sales_greater);
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),compare_sales_smaller);
+    //还可以这样
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),[](goods& a,goods& b)->bool {
+        return a._price >= b._price;
+    });
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),[](goods& a,goods& b)->bool{
+        return a._price <= b._price;
+    });
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),[](goods& a,goods& b)->bool {
+       return a._sales >= b._sales;
+    });
+    sort(gd,gd+ sizeof(gd)/ sizeof(gd[0]),[](goods& a,goods& b)->bool {
+        return a._sales <= b._sales;
+    });
+}
+
+//lambda 表达式的底层原理
+void test_lambda_4(){
+    int a = 10,b = 20;
+    //lambda 表达式底层还是依靠彷函数来实现的，也就是说你定义了一个lambda表达式
+    //编译器会生成一个叫lambda_uuid（uuid是通过算法生成的随机字符串）的类,里面定义了operator()，他的参数、返回值和实现
+    //就是我们写的lambda里的。
+    auto add = [](int x,int y)->int {return x+y;};
+    int c = add(a,b);  //这里实际上是在调用<lambda_uuid>::operator()(a,b)；
+    cout << c << endl;
+}
+
+
+
+//c++11 线程库     #include<thread>
+//特点： 跨平台、面向对象封装的类（每个线程都是一个类对象）
+//实现原理： 封装库时使用了条件编译，也就是说底层还是分别调用了不同平台的线程api
+
+//例：创建两个线程对x加n次
+mutex mtx;
+int x = 0;
+void Add(int n){
+    mtx.lock();
+    for (int i=0;i<n;i++){
+        ++x;
+    }
+    mtx.unlock();
+}
+
+void test_thread_1(){
+    thread t1(Add,100000);
+    thread t2(Add,100000);
+    t1.join();
+    t2.join();
+    cout << x << endl;
+}
+
+
+
+//写一个线程池

@@ -57,3 +57,8 @@ void test_cpp11_5();
 void test_cpp11_6();
 void test_cpp11_7();
 void test_cpp11_8();
+void test_lambda_1();
+void test_lambda_2();
+void test_lambda_3();
+void test_lambda_4();
+void test_thread_1();
