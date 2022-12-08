@@ -444,3 +444,40 @@ void test_thread_1(){
 
 
 //写一个线程池
+
+
+
+//使用两个线程打印0～100之间得数，一个打印奇数，一个打印偶数
+
+#include <condition_variable> //条件变量
+void test_thread_2(){
+    int n = 100;
+    mutex mtx1,mtx2;
+    auto unique_lock_mtx1 = unique_lock<mutex>(mtx1);
+    auto unique_lock_mtx2 = unique_lock<mutex>(mtx2);
+    condition_variable cv1,cv2;
+
+
+    thread t1([&]()->void {
+        for (int i=0;i<=n;i+=2){
+            if (i!=0){
+                cv1.wait(unique_lock_mtx1);
+            }
+            cout << "t1: " << this_thread::get_id() << ":" << i << endl;
+            cv2.notify_one();   //t1打印完了，给t2发送执行信号
+        }
+    });
+
+    thread t2([&]()->void {
+        for (int i=1;i<=n;i+=2){
+            cv2.wait(unique_lock_mtx2); //等待cv2信号
+            cout << "t2: " << this_thread::get_id() << ":" << i << endl;
+            cv1.notify_one();
+        }
+    });
+
+    t1.join();
+    t2.join();
+}
+
+

@@ -62,3 +62,4 @@ void test_lambda_2();
 void test_lambda_3();
 void test_lambda_4();
 void test_thread_1();
+void test_thread_2();

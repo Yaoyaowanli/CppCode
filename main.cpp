@@ -8,6 +8,7 @@
 #include "Hash/my_unordered_map.h"
 #include "Hash/bit_set.h"
 #include "cpp_11/test_cpp_11.h"
+#include "abnormal/abnormal.h"
 
 using namespace std;
 
@@ -32,6 +33,8 @@ int main (){
     //test_lambda_1();
     //test_lambda_2();
     //test_lambda_4();
-    test_thread_1();
+    //test_thread_1();
+    //test_thread_2();
+    test_abnormal_3();
     return 0;
 }
