@@ -4,6 +4,7 @@
 
 #include "bit_set.h"
 #include <climits>
+/*
 void test_bitset_1(){
     yao::bitSet bs(100);
     bs.set(99);
@@ -32,4 +33,4 @@ void test_bitset_2(){
     //yao::bitSet bs(-1);     //整形最大值
     printf("%zu\n",INT_FAST32_MAX);
 
-}
+}*/

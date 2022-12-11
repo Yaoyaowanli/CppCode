@@ -9,7 +9,7 @@
 #include "Hash/bit_set.h"
 #include "cpp_11/test_cpp_11.h"
 #include "abnormal/abnormal.h"
-
+#include "smartptr/smart_ptr.h"
 using namespace std;
 
 
@@ -35,6 +35,7 @@ int main (){
     //test_lambda_4();
     //test_thread_1();
     //test_thread_2();
-    test_abnormal_3();
+    //test_abnormal_3();
+    test_smart_ptr_6();
     return 0;
 }
