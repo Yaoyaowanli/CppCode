@@ -9,6 +9,7 @@
 
 #pragma once
 #include <iostream>
+#include <mutex>
 
 namespace yao{
 
@@ -110,42 +111,64 @@ namespace yao{
         T* _ptr;
     };
 
+    template<typename T>
+    class weakPtr;
+
     //c++11 shared_ptr  共享
+    // 引用计数，可以拷贝。
+    // 缺陷：循环引用
     template<typename T>
     class sharedPtr{
+        friend weakPtr<T>;
     public:
         sharedPtr(T* ptr)
                 :_ptr(ptr)
                 ,_count(new int(1))
+                ,_mtx(new std::mutex)
         {}
         sharedPtr(sharedPtr<T>& p)
         :_ptr(p._ptr)
         ,_count(p._count)
+        ,_mtx(p._mtx)
         {
-            (*_count)++;
+            add_ref_count();
         }
         sharedPtr<T>& operator=(sharedPtr<T>& p){
             if (*this != p){
                 //如果赋值前，这个智能指针有值，count 不为0 就--count，赋值，如果为0就要先释放旧空间，在赋值
-                if((--(*_count)) == 0){
-                    delete _ptr;
-                    delete _count;
-                }
+                release();
                 _ptr = p._ptr;
                 _count = p._count;
-                (*_count)++;
+                add_ref_count();
             }
             return *this;
         }
 
         ~sharedPtr(){
-            if (--(*_count)==0 && _ptr){
-                std::cout << "free: "<< _ptr << std::endl;
-                delete _ptr;
-                _ptr = nullptr;
+            release();
+        }
+
+        void add_ref_count(){
+            _mtx->lock();
+            (*_count)++;
+            _mtx->unlock();
+        }
+
+        void release(){
+            bool flag = false;
+            _mtx->lock();
+            if (--(*_count) == 0){
                 delete _count;
-                _count = nullptr;
+                delete _ptr;
+                _count = _ptr = nullptr;
+                flag = true;
             }
+            if (flag){
+                delete _mtx;
+                _mtx = nullptr;
+                return;
+            }
+            _mtx->unlock();
         }
 
         T& operator*(){
@@ -163,7 +186,30 @@ namespace yao{
     private:
         T* _ptr;
         int* _count;
+        std::mutex* _mtx;    //互斥锁指针，因为需要枷锁的是一块空间，多个shared_ptr引用才是安全的
     };
+
+    //c++11 weak_ptr    解决shared——ptr的循环引用问题
+    template <typename T>
+    class waeakPtr{
+    public:
+        waeakPtr(const sharedPtr<T>& sp)
+        :_ptr(sp._ptr)
+        {}
+        weakPtr<T>& operator=(const sharedPtr<T>& sp){
+            _ptr = sp._ptr;
+        }
+        T& operator* (){
+            return *_ptr;
+        }
+        T* operator->(){
+            return _ptr;
+        }
+
+    private:
+        T* _ptr;
+    };
+
 }
 
 void test_smart_ptr_1();

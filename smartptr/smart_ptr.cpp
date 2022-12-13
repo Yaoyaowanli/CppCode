@@ -101,9 +101,26 @@ void test_smart_ptr_6() {
             yao::sharedPtr<int> p2 = p;
         }
     });
-
+    //这里t1、t2两个线程同时取拿对象拷贝构造p，由于p中count的++、--操作不是原子操作，汇编有三步（放入寄存器，++，放入变量）
+    //所以可能在_count = 1 时同时两个线程拿到这个值执行，结果本来是3的却成了2。
     t1.join();
     t2.join();
 
     cout << p.use_count() << endl;
 }
+
+/*
+//关于shared_ptr 的循环引用问题
+struct sharedPtrListNode{
+    ~sharedPtrListNode(){
+        cout << " ~sharedPtrList() " << endl;
+    }
+private:
+    int _val;
+    yao::sharedPtr<int> _prev;
+    yao::sharedPtr<int> _next;
+};
+void test_smart_ptr_7() {
+    sharedPtrListNode p1 (new sharedPtrListNode);
+
+}*/
