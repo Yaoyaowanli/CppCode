@@ -3,6 +3,7 @@
 //
 //  智能指针
 #include <thread>
+#include <memory>
 #include "smart_ptr.h"
 using namespace std;
 
@@ -124,3 +125,82 @@ void test_smart_ptr_7() {
     sharedPtrListNode p1 (new sharedPtrListNode);
 
 }*/
+
+//定制删除器
+template<typename T>
+struct delete_array{
+    void operator()(T* pa){
+        delete[] pa;
+    }
+};
+
+struct fclose_file{
+    void operator()(FILE* f){
+        cout << "释放文件句柄～" << endl;
+        fclose(f);
+    }
+};
+
+class A{
+public:
+    ~A(){
+        cout << "~A" << endl;
+    }
+private:
+    int _a1;
+    int _a2;
+};
+void test_smart_ptr_7() {
+    std::shared_ptr<A> sp1(new A);  //这里的sp1 在函数结束后智能指针释放了A
+    //std::shared_ptr<A> sp2(new A[10]);// 但是sp2 奔溃了，那么对于这种数组类型，我们可以使用定制删除器的方式去定义如何释放他们。
+    //我们定制了一个彷函数，重载了（） 在函数里定义了array版本使用delete[]来删除数组，然后将彷函数对象传给shared_ptr
+    std::shared_ptr<A> sp2(new A[10],delete_array<A>());
+    //再比方说我们获得了一个文件资源，文件句柄的释放不是使用delete，那么我们也可以利用彷函数定制释放资源的方式来改变shared_ptr的释放方式
+    std::shared_ptr<FILE> sp3(fopen("./test.txt","w"),fclose_file());
+}
+
+
+//智能指针是RAII思想的一种应用的体现
+//本质上RAII就是借助类的构造和析构函数的自动调用特性来释放资源
+
+//使用RAII 思想设计互斥锁的管理首位
+template<typename lock>
+class lockGuard{
+public:
+    explicit lockGuard(lock& lk)
+    :_lk(lk)
+    {
+        cout << "lock()" << endl;
+        lk.lock();
+    }
+
+    ~lockGuard(){
+        cout << "unlock()" << endl;
+        _lk.unlock();
+    }
+private:
+    lock& _lk;
+};
+
+
+void func2(){
+    mutex mtx;
+    lockGuard<mutex> lg(mtx);   //
+    //mtx.lock();
+    yao::div();
+    //........      假设中间代码可能会抛异常
+    //mtx.unlock();
+}
+
+void test_smart_ptr_8() {
+    try{
+        thread t1(func2);    //如果现在t1线程在执行中间代码时发生了异常，没有释放互斥锁，那么t2线程就会一直阻塞，导致死锁
+        thread t2(func2);
+        t1.join();
+        t2.join();
+    }catch (invalid_argument& e){
+        cout << e.what() << endl;
+    }
+
+}
+
