@@ -36,9 +36,10 @@ int main (){
     //test_thread_1();
     //test_thread_2();
     //test_abnormal_3();
-    try{
-        test_smart_ptr_8();
-    } catch (...) {}
+    //try{
+    //    test_smart_ptr_8();
+    //} catch (...) {}
+    test_cast_1();
 
     return 0;
 }

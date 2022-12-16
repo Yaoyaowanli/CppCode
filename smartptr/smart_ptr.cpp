@@ -204,3 +204,121 @@ void test_smart_ptr_8() {
 
 }
 
+
+
+//单例模式
+//  设计一个类，要求该类智能在堆上创建对象
+
+//思路：正常对象创建，一定要调用类的构造函数和拷贝构造函数
+class HeapOnly{
+public:
+     static HeapOnly* GetObj(){
+        return new HeapOnly;
+    }
+private:
+    HeapOnly(){}
+    HeapOnly(const HeapOnly& h) = delete;
+
+};
+
+//设计一个类只能在栈上创建
+class StackOnly{
+public:
+    void* operator new(size_t size) = delete;   //不建议
+
+    static StackOnly getObj(){
+        return StackOnly();
+    }
+private:
+    StackOnly(){}
+};
+
+void test_1() {
+    //没有对象还是无法调用GetObj。解决办法，将GetObj设为static修饰的
+    HeapOnly* p = HeapOnly::GetObj();
+    StackOnly p2 = StackOnly::getObj();
+}
+
+//单例模式： 一个类在全局、进程中只能有一个实例对象，在使用的时候再创建对象
+// 应用场景： 内存池，进程中的多线程需要内存都去内存池取，这个内存池类，就可以设计为单例
+//懒汉模式
+class Memory_pool{
+public:
+    static Memory_pool* get_pool(){
+        //_mtx->lock();   //确保线程安全
+
+        //这个域用来确定unique_lock 的作用范围，出了该域unique_lock 就会解锁。
+        //但是我们只需要初始化一次，后续每次都要加锁太浪费性能了
+        if (_pMemory == nullptr)    //双检查，第一次初始化的时候需要进去加锁new对象，后续就不需要加锁浪费资源了。
+            //如果不再加一次判断，以后每次走到这个域都会多出一个锁的资源，还会阻塞其他线程
+        {//使用unique_lock 来确保抛异常后还可以解锁
+            unique_lock<mutex> lock(*_mtx);
+
+            if (_pMemory == nullptr) {
+                //new有可能抛异常，一旦抛异常就没法解锁了，其余线程就死锁了。
+                _pMemory = new Memory_pool;
+            }
+        }
+
+        //_mtx->unlock();
+        return _pMemory;
+    }
+private:
+    Memory_pool(){}
+    Memory_pool(const Memory_pool& mp) = delete;
+
+    static Memory_pool* _pMemory;
+    static mutex* _mtx;
+};
+
+Memory_pool* Memory_pool::_pMemory = nullptr;
+mutex* Memory_pool::_mtx = new mutex;
+
+//总结：Memory_pool 全局只有一个，所以私有化构造函数，删除了拷贝构造函数，私有成员pMemory和mutex都是static的，该类共用一个全局成员。
+//      获得对象只有通过get_pool接口来进行，而该接口在第一次调用的时候
+//      会返回一个memory_pool对象指针，之后返回的都是同一个对象的指针，又加入了互斥锁来保证线程安全问题，多个线程第一次创建pool对象
+//      时不会发生竞争，unique_lock防止了new的过程中如果抛异常，线程会死锁的问题。
+
+
+//饿汉模式： main函数之前就创建对象
+class SingLeton{
+public:
+    static SingLeton* Get_SingObj(){
+        return &_inst;
+    }
+
+private:
+    static SingLeton _inst;
+};
+
+SingLeton SingLeton::_inst;         //static 是在main函数之前创建的，没有多线程，不需要在意线程安全
+
+
+
+
+
+//c++ 类型转换
+
+void test_cast_1(){
+    //c++ 兼容c语言留下来的隐式转换和显示转换。
+    //标准c++为了加强类型转换的可视性，引入了4种命名的强制类型转换操作符
+    // static_cast    reinterpret_cast   const_cast   dynamic_cast
+    int i = 1;
+    double d = 9.99;
+    i = d;  //隐士类型转化，丢失精度
+
+    d = static_cast<double>(i);     //对应c的隐士类型转换
+    int* p = nullptr;
+    p = reinterpret_cast<int*>(i);  //对应c的强制类型转换（不相近类型）
+
+    volatile const int ci = 99;
+    int* pi = const_cast<int*>(&ci);    //const_cast 去除const属性
+    *pi = 11;
+    cout << *pi  << ": " << pi << endl;     //11: 0x16f5ef514
+    cout << ci <<  ": " << &ci << endl;     //99: 0x16f5ef514 （这里的99是编译器优化了直接去寄存器拿的，其实内存还是被修改了）
+    // 为什么地址相同但是打印出得数值却不同呢？ pi指向了ci的空间，通过const_cast消除了const修改了
+    //空间的值为11 我们通过调试看到这块空间确实变为11了，那为什么打印的ci是99呢？ 因为ci开始是const修饰的会放到寄存器中，而调试是去内存中
+    //取得值，所以会不一样，打印是去寄存器拿到的ci,这是被编译器优化过的，要想取消去寄存器取值的优化，就要在变量前加volatile
+
+
+}

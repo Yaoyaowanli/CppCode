@@ -220,3 +220,4 @@ void test_smart_ptr_5();
 void test_smart_ptr_6();
 void test_smart_ptr_7();
 void test_smart_ptr_8();
+void test_cast_1();
