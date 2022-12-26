@@ -30,4 +30,4 @@ add_executable(CppCode
         abnormal/abnormal.cpp
         abnormal/abnormal.h
         smartptr/smart_ptr.cpp
-        smartptr/smart_ptr.h)
+        smartptr/smart_ptr.h test/test.cpp test/test.h)
