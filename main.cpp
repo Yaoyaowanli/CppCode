@@ -10,6 +10,7 @@
 #include "cpp_11/test_cpp_11.h"
 #include "abnormal/abnormal.h"
 #include "smartptr/smart_ptr.h"
+#include "test/test.h"
 using namespace std;
 
 
@@ -39,7 +40,8 @@ int main (){
     //try{
     //    test_smart_ptr_8();
     //} catch (...) {}
-    test_cast_1();
+    //test_cast_1();
+    test_2();
 
     return 0;
 }

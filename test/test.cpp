@@ -7,6 +7,9 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 void test_1(){
     std::vector<int> v = {5,2,3,1,4};
@@ -44,7 +47,15 @@ void test_1(){
         }
         std::cout << std::endl;
     }while(prev_permutation(v.begin(),v.end()));
+}
 
+void test_2(){
+    char str[] = "hello world!";
+    size_t len = strlen(str);
+    void* dest = malloc(len);
+    dest = memcpy(dest,str,len);
+    char* ret = (char*)dest;
+    int retlen = strlen(ret);
 
-    return 0;
+    printf("%d\n %s\n",retlen,ret);
 }

@@ -233,11 +233,11 @@ private:
     StackOnly(){}
 };
 
-void test_1() {
+/*void test_1() {
     //没有对象还是无法调用GetObj。解决办法，将GetObj设为static修饰的
     HeapOnly* p = HeapOnly::GetObj();
     StackOnly p2 = StackOnly::getObj();
-}
+}*/
 
 //单例模式： 一个类在全局、进程中只能有一个实例对象，在使用的时候再创建对象
 // 应用场景： 内存池，进程中的多线程需要内存都去内存池取，这个内存池类，就可以设计为单例
@@ -315,7 +315,7 @@ void test_cast_1(){
     int* pi = const_cast<int*>(&ci);    //const_cast 去除const属性
     *pi = 11;
     cout << *pi  << ": " << pi << endl;     //11: 0x16f5ef514
-    cout << ci <<  ": " << &ci << endl;     //99: 0x16f5ef514 （这里的99是编译器优化了直接去寄存器拿的，其实内存还是被修改了）
+    //cout << ci <<  ": " << &ci << endl;     //99: 0x16f5ef514 （这里的99是编译器优化了直接去寄存器拿的，其实内存还是被修改了）
     // 为什么地址相同但是打印出得数值却不同呢？ pi指向了ci的空间，通过const_cast消除了const修改了
     //空间的值为11 我们通过调试看到这块空间确实变为11了，那为什么打印的ci是99呢？ 因为ci开始是const修饰的会放到寄存器中，而调试是去内存中
     //取得值，所以会不一样，打印是去寄存器拿到的ci,这是被编译器优化过的，要想取消去寄存器取值的优化，就要在变量前加volatile
